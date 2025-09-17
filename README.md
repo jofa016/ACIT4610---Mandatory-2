@@ -7,6 +7,43 @@ This repository solves small/medium/large Vehicle Routing Problem (VRP) instance
 
 It then evaluates solution quality, convergence, runtime, and consistency across multiple runs and parameter sets.
 
+
+## Changes/Missing:
+
+### Data & Constraints
+- [] Add customer demands array (demands) from CVRPLIB.
+- [] Add vehicle capacity Q.
+- [] Implement route_load(route, demands) to compute total demand per route.
+
+### Repair & Feasibility
+- [] Implement greedy capacity repair (split overloaded routes, merge/split to match V).
+- [] Add capacity_violation(...) to quantify infeasibility.
+- [] Integrate repair into offspring creation (after crossover/mutation).
+
+### Objectives
+- [] Add second objective (route imbalance: max route length or std. deviation).
+- [] Replace fitness() with objective_vector(...) that returns (f1, f2).
+
+### MOEAs
+- [] Implement NSGA-II loop (non-dominated sorting, crowding distance, Pareto-based selection).
+- [] Implement a second MOEA - SPEA2.
+
+### Experiments
+- [] Load CVRPLIB instances.
+    - Small: A-n32-k5 (32 customers, 5 vehicles). 
+    - Medium: B-n78-k10 (78 customers, 10 vehicles). 
+    - Large: X-n101-k25 (101 customers, 25 vehicles). 
+- [] Define three parameter sets (pop size, generations, pc, pm).
+- [] Run each setting ≥20 times for statistical reliability.
+
+### Analysis & Reporting
+- [] Extract and plot Pareto fronts (f1 vs f2).
+- [] Compute at least one convergence/diversity metric (Hypervolume, GD, or Spread).
+- [] Tabulate mean/Best/Worst runtime and metrics across runs.
+- [] Write up report comparing two MOEAs, parameter effects, and results.
+
+
+
 ## Content
 * README.md
 * MAIN_CODE_BHF.ipynb # final, executable notebook
