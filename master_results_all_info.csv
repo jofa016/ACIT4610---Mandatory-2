@@ -1,0 +1,19 @@
+InstanceLabel,Instance,Customers,Vehicles,ParamSet,BestDist,AvgDist,WorstDist,StdDist,ConvBest,ConvAvg,ConvWorst,MeanRuntime_s
+Small-1,1,10,3,Balanced,326.7,357.01,399.46,17.52,0,25.2,122,0.082
+Small-1,1,10,3,High exploration,326.7,337.96,356.49,9.42,5,10.4,33,0.648
+Small-1,1,10,3,Focus exploitation,343.62,401.12,464.82,33.61,0,11.4,74,0.016
+Small-2,2,18,8,Balanced,699.72,766.18,861.21,42.23,9,51.65,198,0.127
+Small-2,2,18,8,High exploration,690.34,702.39,725.1,10.6,18,36.5,94,1.055
+Small-2,2,18,8,Focus exploitation,758.36,853.53,1012.13,57.01,1,17.2,86,0.026
+Medium-3,3,17,11,Balanced,912.24,935.06,970.01,16.81,2,19.8,89,0.14
+Medium-3,3,17,11,High exploration,905.5,912.95,925.91,5.94,5,17.05,51,1.163
+Medium-3,3,17,11,Focus exploitation,920.69,984.67,1067.82,33.46,0,5.15,11,0.03
+Medium-4,4,28,22,Balanced,1616.46,1677.23,1744.3,31.27,1,9.3,21,0.235
+Medium-4,4,28,22,High exploration,1603.04,1619.4,1644.26,13.22,15,28.5,46,1.938
+Medium-4,4,28,22,Focus exploitation,1632.36,1720.77,1799.66,36.38,0,5.5,17,0.049
+Large-5,5,50,20,Balanced,1931.49,2059.95,2221.19,91.58,33,74.9,114,0.32
+Large-5,5,50,20,High exploration,1575.3,1652.22,1743.72,42.9,107,223.6,325,2.978
+Large-5,5,50,20,Focus exploitation,2264.27,2392.97,2628.52,95.12,10,21.25,32,0.07
+Large-6,6,48,48,Balanced,3695.93,3695.93,3695.93,0.0,0,0.0,0,0.496
+Large-6,6,48,48,High exploration,3695.93,3695.93,3695.93,0.0,0,0.0,0,4.164
+Large-6,6,48,48,Focus exploitation,3695.93,3695.93,3695.93,0.0,0,0.0,0,0.104
