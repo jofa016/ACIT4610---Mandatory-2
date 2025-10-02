@@ -1,228 +1,140 @@
-# **ACIT 4610 – Mid-Term Portfolio Project 1**
-## Vehicle Routing Problem (VRP) with a Quantum-Inspired Genetic Algorithm
-### Group 4
-This repository solves small/medium/large Vehicle Routing Problem (VRP) instances using Genetic Algorithm (GA) with a “**quantum-inspired**” split representation:
-* Genome: a permutation of customers
-* route cuts: a companion boolean vector that decides where to split the permutation into routes
+# **ACIT 4610 – Mid-Term Portfolio Project 2**
+## Multi-Objective Capacitated Vehicle Routing Problem (MOVRP) Using MOEAs
+### Group 3
+This repository addresses the **Multi-Objective Capacitated Vehicle Routing Problem (MOVRP)** using **Multi-Objective Evolutionary Algorithms (MOEAs)**. Building on the classical VRP solved in Project 1, this version solves multi-objective VRP instances from CVRPLIB using two evolutionary algorithms: NSGA-II and SPEA2.
 
-It then evaluates solution quality, convergence, runtime, and consistency across multiple runs and parameter sets.
+Each solution is evaluated on two objectives:
+1.  **Total distance traveled**(minimize)
+2. **Route imbalance** (Standard deviation of route distances, minimize)
+The notebook compares the two algorithms on small, medium, and large VRP instances, using multiple parameter sets and repeated runs.
 
 
-## Changes/Missing:
+### Changes from Assignment 1
+* Added second objective (route balance).
+* Implemented full **NSGA-II** (fast non-dominated sort + crowding distance).
+* Implemented **SPEA2** (strength Pareto archive + density measure).
+* Added metrics for Pareto front quality (Hypervolume, IGD, Spread).
+* Batch experiments across **20 seeds × 3 parameter sets × 3 instances**.
+* Result storage with incremental saving (`results_incremental.pkl`).
 
-### Data & Constraints
-- [ ] Add customer demands array (demands) from CVRPLIB.
-- [ ] Add vehicle capacity Q.
-- [ ] Implement route_load(route, demands) to compute total demand per route.
 
-### Repair & Feasibility
-- [ ] Implement greedy capacity repair (split overloaded routes, merge/split to match V).
-- [ ] Add capacity_violation(...) to quantify infeasibility.
-- [ ] Integrate repair into offspring creation (after crossover/mutation).
+### Algorithms
+We implement and compare two MOEAs:
+* **NSGA-II** (Non-dominated Sorting Genetic Algorithm II)
+* **SPEA2** (Strength Pareto Evolutionary Algorithm 2)
 
-### Objectives
-- [ ] Add second objective (route imbalance: max route length or std. deviation).
-- [ ] Replace fitness() with objective_vector(...) that returns (f1, f2).
-
-### MOEAs
-- [ ] Implement NSGA-II loop (non-dominated sorting, crowding distance, Pareto-based selection).
-- [ ] Implement a second MOEA - SPEA2.
-
-### Experiments
-- [ ] Load CVRPLIB instances.
-    - Small: A-n32-k5 (32 customers, 5 vehicles). 
-    - Medium: B-n78-k10 (78 customers, 10 vehicles). 
-    - Large: X-n101-k25 (101 customers, 25 vehicles). 
-- [ ] Define three parameter sets (pop size, generations, pc, pm).
-- [ ] Run each setting ≥20 times for statistical reliability.
-
-### Analysis & Reporting
-- [ ] Extract and plot Pareto fronts (f1 vs f2).
-- [ ] Compute at least one convergence/diversity metric (Hypervolume, GD, or Spread).
-- [ ] Tabulate mean/Best/Worst runtime and metrics across runs.
-- [ ] Write up report comparing two MOEAs, parameter effects, and results.
-
+The framework evaluates solution quality, convergence, runtime, and diversity across multiple runs and parameter settings, using benchmark instances from CVRPLIB (small, medium, and large).
 
 
 ## Content
+* A-n32-k5.vrp
+* B-n78-k10.vrp
+* X-n101-k25.vrp
+
 * README.md
-* MAIN_CODE_BHF.ipynb # final, executable notebook
-* customers.csv # data of costumers locations
-* results.csv
+* main.ipynb # final, executable notebook
+* results_experiments.csv
+* results_experiments_filled_with_evals.csv
+* results_incremental.pkl — incremental log of runs
+* reference_front.npy — global Pareto set
+* metrics_summary.csv — aggregated metrics
 
 ## Requirements
 * Python 3.8+
 * Libraries:
-    * numpy
-    * pandas
-    * matplotlib
+    * numpy, pandas, matplotlib, seaborn
+    * vrplib (to load CVRPLIB.vrp files)
     * ipython (for display styling)
+    * scipy
 
 Install (local):
 ```sh
-pip install numpy pandas matplotlib ipython
+pip install numpy pandas matplotlib seaborn vrplib ipython scipy
 ```
 
-## Data Format (CSV)
-The code uses a csv with the folowing columns:
-> id,x,y 
+## Data (CVRPLIB)
+We use three standard CVRPLIB instances:
+* **Small**: A-n32-k5.vrp (32 customers, 5 vehicles)
+* **Medium**: B-n78-k10.vrp (78 customers, 10 vehicles)
+* **Large**: X-n101-k25.vrp (101 customers, 25 vehicles)
 
-In wich id represent the costumers id, and x, y the coordinates of their homes/location. And by discussion it got decided that the center of all would be the depot location.
-
+These contains:
+* Node coordinates (depot + customers)
+* Customer demands
+* Vehicle capacity
 
 
 ## Quick start
-1. Ensure costumers.csv is in the same folder as the MAIN_CODE
-2. In the notebook, make sure you load with a relative path that works for you:
+1. Ensure the three `.vrp` files in the same folder as `main.ipynb`.
+2. Open and run `main.ipynb`. The notebook will:
+    * Load each instance,
+    * Build distance matrices,
+    * Run `NSGA-II` and `SPEA2` for three parameter sets (pop/gens/pc/pm),
+    * Repeat N=20 seeds per (instance × algorithm × param set),
+    * Save results incrementally to `results_incremental.pkl`,
+    * Build a global reference Pareto set `reference_front.npy`,
+    * Compute & save `metrics_summary.csv` (if you run the aggregation section).
 
-```sh
-df = pd.read_csv("customers.csv")  # not "/customers.csv"
-``` 
-```sh
-df = pd.read_csv("./customers.csv")
-```
-```sh
-df = pd.read_csv("data/customers.csv")
-```
-```sh
-df = pd.read_csv("/content/customers.csv")
-```
-
-3. Run all cells. The notebook will produce:
-* results.csv
-* table_solution_quality.csv
-* table_computational_efficiency.csv
-* table_convergence_rate.csv
+3. Use the provided plotting cells to:
+    * Compare Pareto fronts per instance/param set,
+    * Visualize mean runtime per algorithm,
+    * Draw example route maps from any stored Pareto solution,
+    * Show boxplots for HV/IGD/Spread by instance and parameter set.
  
-
-## GA Overview:
-- **Representation:** A customer **order** (permutation) + a **cut list / split vector** that marks where each new vehicle route starts.
-- **Initialization:** Start with random orders and random cuts.
-- **Decoding & repair:** Turn the order + cuts into routes; if any route exceeds capacity, move the last customers to the next route(s) until all are feasible.
-- **Crossover:** Order-preserving crossover for the permutation; element-wise blend for the splits, then **repair** so there are exactly **V−1** cuts.
-- **Mutation:** Small random changes—swap or insert a customer; flip or nudge a cut (±1)—then repair to keep the solution valid.
-- **Selection:** k-tournament (**k = 3**) or rank-based (higher-ranked individuals are picked more often).
-- **Elitism:** Copy the top **K** (~1–5% of the population) directly into the next generation.
-- **Fitness:** Shorter total distance (depot → customers → depot per route) is better. The GA maximizes **−distance**; optional penalties can discourage capacity or route-count violations.
+ Parameter sets (in the notebook):
+ ```sh
+ PARAM_SETS = [
+    {"pop_size": 100, "gens": 500, "pc": 0.7,  "pm": 0.2},
+    {"pop_size": 80,  "gens": 300, "pc": 0.9,  "pm": 0.1},
+    {"pop_size": 120, "gens": 600, "pc": 0.8,  "pm": 0.15},
+]
+ ```
 
 ## Implementation notes:
-### **Instances**
-We build several VRP instances (Small/Medium/Large) within the numbers provided in the task and having two different instances within each sizes.
+**Representation & Decoding**
+* **Genome**: permutation of customer indices (depot excluded).
+* **Split**: greedy fill under capacity __Q__; when the next customer would exceed __Q__, start a new route.
+* **Route length**: depot -> first -> … -> last -> depot.
 
-```sh
-class VRPInstance:
-    def __init__(self, depot, vehicles, customers):
-        self.depot = depot
-        self.customers = customers
-        self.vehicles = vehicles
-```
+**Fitness (objectives)**
+* **fitness**(tour, vrp) returns (f1, f2):
+* **f1**: total distance (with penalties if any route is overloaded),
+* **f2**: std of route lengths.
 
-### **Representation**
-Each solution is an `individual(perm, cuts)`
-* `perm`: permutation of costumers IDs(1..N)
-* `cuts`: sorted index by where we split perm into routes(size = V-1)
+**Genetic Operators**
+* **Initialization**: random permutations.
+* **Crossover**: Order Crossover (OX), order-preserving.
+* **Mutation**: swap mutation with probability pm per gene.
 
-```sh
-class Individual(NamedTuple):
-    perm: List[int]
-    cuts: List[int]
-```
-### **Decoding and cost**
-* Decoding routes by slicing `perm` at `cuts`; compute route cost as depot → route → depot.
+**MOEA loops**
+* **NSGA-II**: vectorized non-dominated sort + crowding distance for selection and environmental survival.
+* **SPEA2**: strength/raw/density fitness, external archive, tournament on archive, environmental truncation.
 
-```sh
-def decode_routes(ind: Individual, V:int) -> List[List[int]]:
-```
-*  Route/total distance:
-```sh   
-def route_distance(route: List[int], dmat) -> float: 
-def total_distance(ind: Individual, dmat, V: int) -> float:
-```   
-
-### **Fitness**
-We want to minimize total distance, while the GA maximizes fitness; `fitness = −(total distance + penalties)` maximizing fitness = minimizing distance.
-
-```sh
-def fitness(ind: Individual, dmat, V: int) -> float:
-    return -total_distance(ind, dmat, V)
-```
-
-### **Selection**
-k-tournment by default (k=3); sample 3 candidates and keep the best; rank-based selection is also available (samples by rank, not raw fitness).
-
-```sh
-def tournament_selection_idx(fitnesses: List[float], k: int, rng: random.Random) -> int:
-    cand = [rng.randrange(len(fitnesses)) for i in range(k)]
-    return max(cand, key=lambda i: fitnesses[i])
-```
-
-### **Crossover**
-* **Permutation (order-preserving OX):** keeps the relative visit order intact.
-* **Splits (element-wise blend + repair):** mixes cut positions, then repairs to ensure exactly **V−1** valid cuts.
-
-```sh
-def order_crossover(p1: List[int], p2: List[int], rng: random.Random) -> Tuple[List[int], List[int]]:
-```
-
-```sh
-def cuts_crossover(c1: List[int], c2: List[int], N: int, V: int, rng: random.Random) -> Tuple[List[int], List[int]]:
-```
-
-```sh
-def repair_cuts(cuts: List[int], N: int, V:int, rng: random.Random) -> List[int]:
-```
-
-### **Mutation**
-* **Permutation:** swap or insert a random customer.
-* **Splits:** bit-flip or ±1 jitter on a cut, followed by `repair_cuts`.
-
-```sh
-def swap_mutation_perm(p: List[int], p_mut:float, rng: random.Random) -> List[int]:
-```
-```sh
-def jitter_mutation_cuts(cuts: List[int], N:int, V:int, p_mut: float, rng: random.Random) -> List[int]:
-```
-
-### **GA engine (loop)**
-* Initialize population → repeat **{selection → crossover → mutation → evaluation}** for the set number of generations.
-* **Elitism (optional):** copy top-K (~1–5%) directly into the next generation.
-
-```sh
-best_ind, best_dist, best_hist = genetic_algorithm(dmat, N=len(instance.customers), V=instance.vehicles, pop_size=120, generations=20, k_tourn=3, pc=0.9, pm_perm=0.2, pm_cuts=0.2, seed=42, log_convergence=True)
-```
 
 ### **Visualization**
-Visualize routes for each instance
-```sh
-def plot_routes(ind, customers, depot, n_vehicles, number_points=False, title=None):
-```
+####  Experiments:
+* Design: 3 instances × 2 algorithms × 3 parameter sets × 20 seeds.
+* Logging: after each run, append to results_incremental.pkl:
+    * instance, algo, param_set, seed,
+    * runtime (s) and evaluation count,
+    * full population objectives F,
+    * Pareto front PF and its corresponding permutations `PF_routes`.
+You can resume experiments; the driver skips runs already present in the incremental file.
 
-####  Batch experiments and metrics:
-* Parameter sets:
-```sh
-param_sets = {
-    "Balanced":   {"pop_size": 50,  "generations": 200, "k_tourn": 3, "pc": 0.7,  "pm_perm": 0.01,  "pm_cuts": 0.1},
-    "High exploration":  {"pop_size": 150, "generations": 500, "k_tourn": 3, "pc": 0.85, "pm_perm": 0.05,  "pm_cuts": 0.2},
-    "Focus exploitation": {"pop_size": 20,  "generations": 100, "k_tourn": 3, "pc": 0.6,  "pm_perm": 0.005, "pm_cuts": 0.5},
-}
 
-n_runs = 20
-```
-* For each instance × parameter set × seed, we record: Best distance, runtime, history (for convergence).
- 
-* saved objects:
-    * `results.csv` (summary)
-    * `table_solution_quality.csv`
-    * `table_convergence_rate.csv`
-    * `table_computational_efficiency.csv`
+#### Metrics & Visualization
+* Pareto fronts per instance/param set and aggregated.
+* Hypervolume (HV) (2D, minimization, ref = 1.1×worst objective values).
+* IGD using the global reference front (reference_front.npy).
+* Spread (nearest-neighbor dispersion).
+* Runtime summaries (mean ± std) by instance/algorithm/param set.
+* Route plots: decode any saved Pareto solution and draw the paths in coordinate space.
 
-### **Reproducibility & Performance**
-* Seeds: set `seed` for repeatability; use `n_runs > 1` to report mean ± std.
-* Runtime: fitness evaluation dominates; precompute distance matrix; start with smaller `pop_size/generations` and scale.
 
 ### **Known Limitations & Extensions**
-*  Capacity handling is basic; add capacity-aware splitting + greedy repair if needed.
-* Add 2-opt per route; compare with OR-Tools for a baseline.
+* Split/repair is greedy; you can add smarter repair or local search (e.g., 2-opt per route).
+* We do not enforce a fixed number of vehicles; the split naturally creates as many as needed under Q. If your assignment version requires exactly K routes, add a route-count repair and/or penalty.
+* Penalty coefficient (`1e6`) is coarse; tune if your instances have very large distances.
 
 ## Contribution:
 The project was done in collaboration with the four members of the group. In the initial phase, the tasks were devided between the members, thereafter in each of the following sessions the codes were reviewed together and then worked on by coordinating via Discord and sharing files on GitHub. Each member contributed to the coding, testing and report written, as well as to the compilation and review of the code by the end of the project.
