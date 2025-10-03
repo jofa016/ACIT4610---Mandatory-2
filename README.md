@@ -19,11 +19,10 @@ The notebook compares the two algorithms on small, medium, and large VRP instanc
 
 
 ### Algorithms
-We implement and compare two MOEAs:
-* **NSGA-II** (Non-dominated Sorting Genetic Algorithm II)
-* **SPEA2** (Strength Pareto Evolutionary Algorithm 2)
+* NSGA-II: fast non-dominated sorting and crowding distance, tournament selection, OX crossover, swap mutation.
 
-The framework evaluates solution quality, convergence, runtime, and diversity across multiple runs and parameter settings, using benchmark instances from CVRPLIB (small, medium, and large).
+* SPEA2: strength/raw fitness with external archive, k-NN density (k=1), archive-based tournament, OX + swap.
+
 
 
 ## Content
@@ -33,8 +32,6 @@ The framework evaluates solution quality, convergence, runtime, and diversity ac
 
 * README.md
 * main.ipynb # final, executable notebook
-* results_experiments.csv
-* results_experiments_filled_with_evals.csv
 * results_incremental.pkl — incremental log of runs
 * reference_front.npy — global Pareto set
 * metrics_summary.csv — aggregated metrics
@@ -94,25 +91,24 @@ These contains:
 **Representation & Decoding**
 * **Genome**: permutation of customer indices (depot excluded).
 * **Split**: greedy fill under capacity __Q__; when the next customer would exceed __Q__, start a new route.
-* **Route length**: depot -> first -> … -> last -> depot.
+* **Route length**: depot -> first -> ... -> last -> depot.
 
 **Fitness (objectives)**
 * **fitness**(tour, vrp) returns (f1, f2):
 * **f1**: total distance (with penalties if any route is overloaded),
-* **f2**: std of route lengths.
+* **f2**: std of route loads(balance).
 
 **Genetic Operators**
 * **Initialization**: random permutations.
 * **Crossover**: Order Crossover (OX), order-preserving.
-* **Mutation**: swap mutation with probability pm per gene.
+* **Mutation**: swap mutation with probability `pm` per gene.
 
 **MOEA loops**
-* **NSGA-II**: vectorized non-dominated sort + crowding distance for selection and environmental survival.
-* **SPEA2**: strength/raw/density fitness, external archive, tournament on archive, environmental truncation.
+* **NSGA-II**: vectorized non-dominated sort + crowding distance for selection/environmental survival.
+* **SPEA2**: merge archive and population, compute strength/raw fitness with k-NN density, trim the archive, then select parents via archive-based tournaments.
 
 
-### **Visualization**
-####  Experiments:
+**Experiments:**
 * Design: 3 instances × 2 algorithms × 3 parameter sets × 20 seeds.
 * Logging: after each run, append to results_incremental.pkl:
     * instance, algo, param_set, seed,
@@ -122,7 +118,7 @@ These contains:
 You can resume experiments; the driver skips runs already present in the incremental file.
 
 
-#### Metrics & Visualization
+**Metrics & Visualization**
 * Pareto fronts per instance/param set and aggregated.
 * Hypervolume (HV) (2D, minimization, ref = 1.1×worst objective values).
 * IGD using the global reference front (reference_front.npy).
